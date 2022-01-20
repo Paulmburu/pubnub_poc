@@ -1,36 +1,77 @@
+import 'package:flutter/material.dart';
 import 'package:pubnub/pubnub.dart';
 
-void initPubNub() async {
-  // Create PubNub instance with default keyset.
-  var pubnub = PubNub(
-      defaultKeyset: Keyset(
-          subscribeKey: 'sub-c-e1d4d106-7900-11ec-87be-4a1e879706fb',
-          publishKey: 'pub-c-2fb0426f-42dd-4a18-8b42-87231cf5284b',
-          uuid: const UUID(
-              'sec-c-ZjY1NDgxNDYtZTYzOS00ZmQ5LTkzNTMtMGY1Mzc5NzcxYjUw')));
-
-  // Subscribe to a channel
-  var subscription = pubnub.subscribe(channels: {'Channel-kqznu35ai'});
-
-  subscription.messages.take(1).listen((envelope) async {
-    print('PUBNUB->ENVELOPE' + envelope.payload);
-
-    await subscription.dispose();
-  });
-
-  await Future.delayed(const Duration(seconds: 3));
-
-  // Publish a message
-  await pubnub.publish('Channel-kqznu35ai', {'message': 'My message!'});
-
+Future<bool> publishMessage({
+  required PubNub pubnub,
+  required String message,
+}) async {
   // Channel abstraction for easier usage
-  var channel = pubnub.channel('Channel-kqznu35ai');
+  var channel = pubnub.channel('Channel-anotherGroup');
 
-  await channel.publish({'message': 'Another message'});
+  PublishResult publishResult = await channel.publish({'message': message});
+  return !publishResult.isError;
+}
 
-  // Work with channel History API
-  var history = channel.messages();
-  var count = await history.count();
+Future<bool> deleteMessage({
+  required PubNub pubnub,
+  required String message,
+}) async {
+  // Channel abstraction for easier usage
+  var channel = pubnub.channel('Channel-anotherGroup');
 
-  print('PUBNUB->Messages on test channel: $count');
+  // await channel.deleteMessageAction(messageTimetoken: messageTimetoken, actionTimetoken: actionTimetoken)
+
+  PublishResult publishResult = await channel.publish({'message': message});
+  return !publishResult.isError;
+}
+
+void getGroupMembers(PubNub pubnub) async {
+  ChannelMembersResult channelMembersResult =
+      await pubnub.objects.getChannelMembers('Channel-anotherGroup');
+
+  channelMembersResult.metadataList?.forEach((element) {
+    print('uuid->' + element.uuid.id);
+  });
+  // return
+}
+
+void setGroupMembers(PubNub pubnub) async {
+  ChannelMembersResult channelMembersResult =
+      await pubnub.objects.setChannelMembers('Channel-anotherGroup', [
+    ChannelMemberMetadataInput(
+      'john_doe_1',
+      custom: {'trialPeriod': false},
+    ),
+    ChannelMemberMetadataInput(
+      'alexa_doe',
+      custom: {'trialPeriod': false},
+    ),
+    ChannelMemberMetadataInput(
+      'siri',
+      custom: {'trialPeriod': false},
+    )
+  ]);
+
+  channelMembersResult.metadataList?.forEach((element) {
+    print('uuid->' + element.uuid.id);
+  });
+  // return
+}
+
+void removeGroupMember(PubNub pubnub, String uuid) async {
+  ChannelMembersResult channelMembersResult = await pubnub.objects
+      .removeChannelMembers('Channel-anotherGroup', {'John Doe'});
+  channelMembersResult.metadataList?.forEach((element) {
+    print('uuid->' + element.uuid.toString());
+  });
+}
+
+void showSnackbar(BuildContext context, String text) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(text),
+      ),
+    );
 }
