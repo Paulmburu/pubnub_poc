@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:pubnub/pubnub.dart';
 import 'package:pubnub_sample_app/chat_page.dart';
 
 void main() async {
-  // initPubNub();
+  await dotenv.load(fileName: ".env");
 
   var pubnub = PubNub(
       defaultKeyset: Keyset(
-          subscribeKey: 'sub-c-e1d4d106-7900-11ec-87be-4a1e879706fb',
-          publishKey: 'pub-c-2fb0426f-42dd-4a18-8b42-87231cf5284b',
-          uuid: const UUID(
-              'sec-c-ZjY1NDgxNDYtZTYzOS00ZmQ5LTkzNTMtMGY1Mzc5NzcxYjUw')));
+          subscribeKey: dotenv.env['PUBNUB_SUBSCRIBE_KEY']!,
+          publishKey: dotenv.env['PUBNUB_PUBLISH_KEY'],
+          uuid: UUID(dotenv.env['PERSONAL_UUID']!)));
 
   // Subscribe to a channel
-  var subscription = pubnub.subscribe(channels: {'Channel-anotherGroup'});
+  var subscription = pubnub.subscribe(channels: {'Channel-Group'});
 
   await Future.delayed(const Duration(seconds: 3));
 
@@ -43,7 +43,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.amber,
       ),
-      home: ChatPage(
+      home:
+          // GroupsPage(
+          //   pubnub: pubnub,
+          // ),
+          ChatPage(
         title: 'Pubnub Chat App',
         pubnub: pubnub,
         subscription: subscription,

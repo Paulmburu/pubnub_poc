@@ -6,7 +6,7 @@ Future<bool> publishMessage({
   required String message,
 }) async {
   // Channel abstraction for easier usage
-  var channel = pubnub.channel('Channel-anotherGroup');
+  var channel = pubnub.channel('Channel-Group');
 
   PublishResult publishResult = await channel.publish({'message': message});
   return !publishResult.isError;
@@ -17,7 +17,7 @@ Future<bool> deleteMessage({
   required String message,
 }) async {
   // Channel abstraction for easier usage
-  var channel = pubnub.channel('Channel-anotherGroup');
+  var channel = pubnub.channel('Channel-Group');
 
   // await channel.deleteMessageAction(messageTimetoken: messageTimetoken, actionTimetoken: actionTimetoken)
 
@@ -28,7 +28,6 @@ Future<bool> deleteMessage({
 void getGroupMembers(PubNub pubnub) async {
   ChannelMembersResult channelMembersResult =
       await pubnub.objects.getChannelMembers('Channel-anotherGroup');
-
   channelMembersResult.metadataList?.forEach((element) {
     print('uuid->' + element.uuid.id);
   });
@@ -37,7 +36,7 @@ void getGroupMembers(PubNub pubnub) async {
 
 void setGroupMembers(PubNub pubnub) async {
   ChannelMembersResult channelMembersResult =
-      await pubnub.objects.setChannelMembers('Channel-anotherGroup', [
+      await pubnub.objects.setChannelMembers('Channel-Group', [
     ChannelMemberMetadataInput(
       'john_doe_1',
       custom: {'trialPeriod': false},
