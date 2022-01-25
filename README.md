@@ -1,4 +1,4 @@
-# Pubnub POC (Proof of concept)
+# Pubnub POC
 
 A new Flutter project.
 
